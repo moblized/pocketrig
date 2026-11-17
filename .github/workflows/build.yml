@@ -46,12 +46,9 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       # No analytics keys: PocketRig doesn't send usage data to GameNative's PostHog.
+      # (Every line in local.properties becomes a BuildConfig field, so this file holds only a comment.)
       - name: Empty build settings
-        run: |
-          cat <<EOF > local.properties
-          POSTHOG_API_KEY=
-          POSTHOG_HOST=https://us.i.posthog.com
-          EOF
+        run: echo "# PocketRig: no API keys" > local.properties
 
       - name: Build (Android app bundle)
         run: |

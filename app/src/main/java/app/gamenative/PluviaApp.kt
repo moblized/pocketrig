@@ -173,7 +173,10 @@ class PluviaApp : SplitCompatApplication() {
                 properties.filterKeys { it.startsWith("$") }.toMutableMap().apply { put("url", trimmed) }
             }
         }
-        PostHogAndroid.setup(this, postHogConfig)
+        // PocketRig: builds carry no PostHog key, so analytics stay off (PostHog calls are then no-ops).
+        if (BuildConfig.POSTHOG_API_KEY.isNotBlank()) {
+            PostHogAndroid.setup(this, postHogConfig)
+        }
         com.posthog.PostHog.register("build_flavor", BuildConfig.FLAVOR)
         DeviceInfo.registerSuperProperties(this)
         Thread({ DeviceInfo.registerGpuSuperProperties(applicationContext) }, "device-info").apply { isDaemon = true }.start()
