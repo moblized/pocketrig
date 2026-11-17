@@ -48,7 +48,8 @@ jobs:
       # No analytics keys: PocketRig doesn't send usage data to GameNative's PostHog.
       # (Every line in local.properties becomes a BuildConfig field, so this file holds only a comment.)
       - name: Empty build settings
-        run: echo "# PocketRig: no API keys" > local.properties
+        run: |
+          echo "# PocketRig - no API keys" > local.properties
 
       - name: Build (Android app bundle)
         run: |
