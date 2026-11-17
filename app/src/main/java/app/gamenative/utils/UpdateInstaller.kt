@@ -20,7 +20,7 @@ object UpdateInstaller {
         onProgress: (Float) -> Unit
     ): Boolean = withContext(Dispatchers.IO) {
         try {
-            val apkFileName = "gamenative-v$versionName.apk"
+            val apkFileName = "pocketrig-v$versionName.apk"
             val destFile = File(context.cacheDir, apkFileName)
 
             // Extract filename from URL for fetchFileWithFallback
@@ -30,13 +30,18 @@ object UpdateInstaller {
             Timber.i("Downloading update: $fileName from URL: $downloadUrl")
             Timber.i("Saving to: ${destFile.absolutePath}")
 
-            // Use the existing fetchFileWithFallback method which handles fallback URLs
-            SteamService.fetchFileWithFallback(
-                fileName = fileName,
-                dest = destFile,
-                context = context,
-                onProgress = onProgress
-            )
+            // PocketRig: updates come from the GitHub release's APK, so download that URL as-is.
+            if (downloadUrl.startsWith("https://downloads.gamenative.app/")) {
+                SteamService.fetchFileWithFallback(
+                    fileName = fileName,
+                    dest = destFile,
+                    context = context,
+                    onProgress = onProgress
+                )
+            } else {
+                destFile.delete()
+                SteamService.fetchFile(downloadUrl, destFile, onProgress)
+            }
 
             // Verify the file exists and has content
             if (!destFile.exists()) {

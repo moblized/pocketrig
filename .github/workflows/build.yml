@@ -1,0 +1,94 @@
+name: Build APK
+
+# Every push to master: build the PocketRig APK and publish it as a GitHub Release (repo page -> Releases).
+# The app checks that page and offers to update itself. You can also run it by hand from the Actions tab.
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+  workflow_dispatch:
+
+permissions:
+  contents: write # needed to create releases
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost /usr/share/swift
+          df -h /
+
+      - name: Add swap
+        run: |
+          sudo fallocate -l 8G /mnt/swapfile.ci
+          sudo chmod 600 /mnt/swapfile.ci
+          sudo mkswap /mnt/swapfile.ci
+          sudo swapon /mnt/swapfile.ci
+          free -m
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # No analytics keys: PocketRig doesn't send usage data to GameNative's PostHog.
+      - name: Empty build settings
+        run: |
+          cat <<EOF > local.properties
+          POSTHOG_API_KEY=
+          POSTHOG_HOST=https://us.i.posthog.com
+          EOF
+
+      - name: Build (Android app bundle)
+        run: |
+          chmod +x gradlew
+          ./gradlew -Pkotlin.daemon.jvmargs=-Xmx4g -PversionCode=${{ github.run_number }} :app:bundleLegacyRelease --stacktrace
+          ./gradlew --stop
+
+      - name: Turn the bundle into one installable APK
+        run: |
+          version="1.0.${{ github.run_number }}"
+          java -jar tools/bundletool-all-1.17.2.jar build-apks \
+            --bundle=app/build/outputs/bundle/legacyRelease/app-legacy-release.aab \
+            --output=pocketrig.apks --mode=universal \
+            --ks=signing/pocketrig.keystore --ks-pass=pass:android \
+            --ks-key-alias=pocketrig --key-pass=pass:android
+          mkdir -p out
+          unzip -p pocketrig.apks universal.apk > "out/pocketrig-$version.apk"
+          ls -lh out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pocketrig-apk
+          path: out/*.apk
+
+      - name: Publish release
+        if: github.ref == 'refs/heads/master'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="1.0.${{ github.run_number }}"
+          # Release notes = the commits in this push, without sign-off lines.
+          jq -r '.commits[]? | "### " + (.message | split("\n")[0]) + "\n\n" + ((.message | split("\n")[1:] | join("\n")) // "")' "$GITHUB_EVENT_PATH" \
+            | sed '/^Co-Authored-By:/d;/^Claude-Session:/d' > notes.md
+          [ -s notes.md ] || echo "Manual build." > notes.md
+          printf '\n---\n**Install:** on your phone, download `pocketrig-%s.apk` and open it. It installs over any earlier PocketRig release and keeps your games and settings. After that, the app offers updates itself.\n' "$version" >> notes.md
+          gh release create "v$version" "out/pocketrig-$version.apk" \
+            --title "PocketRig $version" \
+            --notes-file notes.md \
+            --target "$GITHUB_SHA" \
+            --latest

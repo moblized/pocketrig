@@ -65,7 +65,6 @@ import app.gamenative.ui.component.ACHIEVEMENT_NOTIFICATION_POSITION
 import app.gamenative.ui.enums.LibraryTab
 import androidx.compose.ui.viewinterop.AndroidView
 import android.widget.ImageView
-import app.gamenative.utils.IconSwitcher
 import app.gamenative.ui.component.settings.SettingsMenuLink
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -532,41 +531,7 @@ fun SettingsGroupInterface(
             onClick = { openLanguageDialog = true },
         )
 
-        // Unified visual icon picker (affects app and notification icons)
-        var selectedVariant by rememberSaveable { mutableStateOf(if (PrefManager.useAltLauncherIcon || PrefManager.useAltNotificationIcon) 1 else 0) }
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-            Text(
-                text = stringResource(R.string.settings_interface_icon_style),
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Spacer(modifier = Modifier.size(12.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                IconVariantCard(
-                    label = stringResource(R.string.settings_theme_default),
-                    launcherIconRes = R.mipmap.ic_launcher,
-                    notificationIconRes = R.drawable.ic_notification,
-                    selected = selectedVariant == 0,
-                    onClick = {
-                        selectedVariant = 0
-                        PrefManager.useAltLauncherIcon = false
-                        PrefManager.useAltNotificationIcon = false
-                        IconSwitcher.applyLauncherIcon(context, false)
-                    },
-                )
-                IconVariantCard(
-                    label = stringResource(R.string.settings_theme_alternate),
-                    launcherIconRes = R.mipmap.ic_launcher_alt,
-                    notificationIconRes = R.drawable.ic_notification_alt,
-                    selected = selectedVariant == 1,
-                    onClick = {
-                        selectedVariant = 1
-                        PrefManager.useAltLauncherIcon = true
-                        PrefManager.useAltNotificationIcon = true
-                        IconSwitcher.applyLauncherIcon(context, true)
-                    },
-                )
-            }
-        }
+        // PocketRig: the app icon follows the theme (dark theme -> dark icon), so there is no icon picker here.
     }
 
     // Custom Game Settings

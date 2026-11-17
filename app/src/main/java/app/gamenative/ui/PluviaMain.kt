@@ -157,6 +157,7 @@ import app.gamenative.utils.ManifestInstaller
 import app.gamenative.utils.GameFeedbackUtils
 import app.gamenative.utils.IntentLaunchManager
 import app.gamenative.utils.SteamUtils
+import app.gamenative.utils.IconSwitcher
 import app.gamenative.utils.UpdateChecker
 import app.gamenative.utils.UpdateInfo
 import app.gamenative.utils.UpdateInstaller
@@ -1599,6 +1600,11 @@ fun PluviaMain(
 
     BackHandler(enabled = state.loadingDialogVisible && !SteamService.keepAlive) {
         // TODO: Make prelaunch/loading operations cancellable so Back can exit safely.
+    }
+
+    // PocketRig: keep the launcher icon in step with the theme (dark theme -> dark icon).
+    LaunchedEffect(state.appTheme) {
+        withContext(Dispatchers.IO) { IconSwitcher.applyForTheme(context, state.appTheme) }
     }
 
     PluviaTheme(

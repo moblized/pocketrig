@@ -34,8 +34,9 @@ object Constants {
     }
 
     object Misc {
-        const val GITHUB_LINK = "https://github.com/utkarshdalal/GameNative"
+        // PocketRig is a fork of GameNative (GPL-3.0): https://github.com/utkarshdalal/GameNative
+        const val GITHUB_LINK = "https://github.com/moblized/pocketrig"
         const val PRIVACY_LINK = "https://github.com/utkarshdalal/GameNative/tree/master/PrivacyPolicy"
-        const val UPDATE_CHECK_URL = "https://api.gamenative.app/api/update-check"
+        const val UPDATE_CHECK_URL = "https://api.github.com/repos/moblized/pocketrig/releases/latest"
     }
 }

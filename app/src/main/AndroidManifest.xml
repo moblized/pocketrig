@@ -210,6 +210,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity-alias>
+        <!-- PocketRig: the launcher icon follows the in-app theme. Default = follows the system,
+             Light = always the light icon, Alt = always the dark icon. See IconSwitcher. -->
+        <activity-alias
+            android:name=".MainActivityAliasLight"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_light"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
         <service
             android:name=".service.SteamService"
             android:enabled="true"

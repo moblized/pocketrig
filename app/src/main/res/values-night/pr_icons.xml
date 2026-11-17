@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The default launcher icon follows the system: light by day, dark in dark mode. -->
+<resources>
+    <item name="pr_icon_bg" type="drawable">@drawable/pr_icon_bg_dark</item>
+    <item name="pr_icon_fg" type="drawable">@drawable/pr_icon_fg_dark</item>
+</resources>

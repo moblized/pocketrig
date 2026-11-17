@@ -6,9 +6,9 @@ import app.gamenative.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.json.JSONObject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -21,6 +21,10 @@ data class UpdateInfo(
     val releaseNotes: String? = null
 )
 
+/**
+ * PocketRig: checks the latest GitHub release of this app's repo (not GameNative's server).
+ * Releases are tagged v1.0.N, where N is the build number and the APK's versionCode.
+ */
 object UpdateChecker {
     private val httpClient = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
@@ -29,22 +33,40 @@ object UpdateChecker {
 
     suspend fun checkForUpdate(context: Context): UpdateInfo? = withContext(Dispatchers.IO) {
         try {
-            val url = "${Constants.Misc.UPDATE_CHECK_URL}?versionCode=${BuildConfig.VERSION_CODE}&versionName=${BuildConfig.VERSION_NAME}"
             val request = Request.Builder()
-                .url(url)
+                .url(Constants.Misc.UPDATE_CHECK_URL)
+                .header("Accept", "application/vnd.github+json")
                 .build()
 
-            val response = httpClient.newCall(request).execute()
-            
-            if (response.isSuccessful) {
-                val body = response.body?.string()
-                if (body != null) {
-                    val updateInfo = Json.decodeFromString<UpdateInfo>(body)
-                    Timber.i("Update check: updateAvailable=${updateInfo.updateAvailable}, versionCode=${updateInfo.versionCode}")
-                    return@withContext updateInfo
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    Timber.w("Update check failed: HTTP ${response.code}")
+                    return@withContext null
                 }
-            } else {
-                Timber.w("Update check failed: HTTP ${response.code}")
+                val release = JSONObject(response.body?.string() ?: return@withContext null)
+                val tag = release.optString("tag_name")
+                val versionCode = tag.substringAfterLast('.').toIntOrNull() ?: return@withContext null
+                val assets = release.optJSONArray("assets") ?: return@withContext null
+                var apkUrl: String? = null
+                for (i in 0 until assets.length()) {
+                    val asset = assets.getJSONObject(i)
+                    if (asset.optString("name").endsWith(".apk")) {
+                        apkUrl = asset.optString("browser_download_url")
+                        break
+                    }
+                }
+                if (apkUrl.isNullOrEmpty()) return@withContext null
+
+                val notes = release.optString("body").substringBefore("\n---").trim().take(1500)
+                val info = UpdateInfo(
+                    updateAvailable = versionCode > BuildConfig.VERSION_CODE,
+                    versionCode = versionCode,
+                    versionName = tag.removePrefix("v"),
+                    downloadUrl = apkUrl,
+                    releaseNotes = notes.ifEmpty { null },
+                )
+                Timber.i("Update check: latest=$tag, installed=${BuildConfig.VERSION_CODE}")
+                return@withContext info
             }
         } catch (e: Exception) {
             Timber.e(e, "Error checking for updates")
@@ -52,4 +74,3 @@ object UpdateChecker {
         return@withContext null
     }
 }
-

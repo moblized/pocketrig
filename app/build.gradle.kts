@@ -45,6 +45,14 @@ android {
     ndkVersion = "27.3.13750724"
 
     signingConfigs {
+        // PocketRig: one shared key for every build, so a newer APK always installs over an older one
+        // and keeps your games and settings. It's in the repo, so it's only for sideloading.
+        getByName("debug") {
+            storeFile = rootProject.file("signing/pocketrig.keystore")
+            storePassword = "android"
+            keyAlias = "pocketrig"
+            keyPassword = "android"
+        }
         create("pluvia") {
             if (keystoreProperties != null) {
                 storeFile = file(keystoreProperties["storeFile"].toString())
@@ -64,8 +72,11 @@ android {
         buildConfigField("boolean", "XR_BUILD", "false")
         buildConfigField("boolean", "MODERN_XR", "false")
 
-        versionCode = 24
-        versionName = "1.4.0"
+        // PocketRig: GitHub builds pass their run number (-PversionCode=N), so every release is newer
+        // than the last and the in-app updater can compare them.
+        val buildNumber = (project.findProperty("versionCode") as String?)?.toIntOrNull()
+        versionCode = buildNumber ?: 1
+        versionName = "1.0.${buildNumber ?: 0}"
 
         buildConfigField("boolean", "GOLD", "false")
         fun secret(name: String) =

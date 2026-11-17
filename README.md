@@ -1,134 +1,58 @@
-<div align="center">
+# PocketRig
 
-# GameNative
+Your Steam library on your Android phone. Sign in with your Steam account, pick a game you own, download it,
+and play it on the phone itself. Nothing streams from a PC.
 
-**Play the PC games you already own — from Steam, Epic and GOG — on your Android device, with cloud saves.**
+PocketRig is a personal fork of [GameNative](https://github.com/utkarshdalal/GameNative) by Utkarsh Dalal and
+contributors, which does the heavy lifting: the Steam client, downloads, cloud saves, and running Windows games
+through Wine/Proton, DXVK, FEX/Box64 and the Turnip GPU drivers. It is licensed under the GPL-3.0, like the
+original (see `LICENSE` and `THIRD_PARTY_NOTICES`).
 
-<a href="https://trendshift.io/repositories/14497" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14497" alt="utkarshdalal%2FGameNative | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+## Install
 
-<a href="https://www.star-history.com/utkarshdalal/gamenative">
- <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=utkarshdalal/GameNative&theme=dark" />
-  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=utkarshdalal/GameNative" />
-  <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=utkarshdalal/GameNative" />
- </picture>
-</a>
+1. Open this repo's **Releases** page on your phone and download the newest `pocketrig-1.0.N.apk`.
+2. Open it and allow installing from your browser if Android asks.
+3. After that, PocketRig checks this repo's Releases when it starts and offers each new build.
 
-[![GitHub Release](https://img.shields.io/github/v/release/utkarshdalal/GameNative?style=flat-square&logo=github&label=latest)](https://github.com/utkarshdalal/GameNative/releases/latest)
-[![GitHub stars](https://img.shields.io/github/stars/utkarshdalal/GameNative?style=flat-square&logo=github&color=ffd700)](https://github.com/utkarshdalal/GameNative/stargazers)
-[![Discord](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fdiscord.com%2Fapi%2Fv9%2Finvites%2F2hKv4VfZfE%3Fwith_counts%3Dtrue&query=%24.approximate_member_count&style=flat-square&logo=discord&logoColor=white&label=discord&color=5865F2&suffix=%20members)](https://discord.gg/2hKv4VfZfE)
-[![License](https://img.shields.io/badge/license-GPL%203.0-blue?style=flat-square)](https://github.com/utkarshdalal/GameNative/blob/master/LICENSE)
-[![Membership](https://img.shields.io/badge/ko--fi-membership-FF5E5B?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/gamenative)
+Every push to `master` builds a new APK with GitHub Actions (`.github/workflows/build.yml`) and publishes it as
+a release. You can also start a build by hand from the Actions tab.
 
-[**Download**](https://github.com/utkarshdalal/GameNative/releases/download/v1.4.0/gamenative-v1.4.0.apk) · [**Discord**](https://discord.gg/2hKv4VfZfE) · [**Become a member**](https://ko-fi.com/gamenative)
+## Using it
 
-<video src="https://github.com/user-attachments/assets/95b5397b-908a-44ef-a10a-dac7723580b0" autoplay loop muted playsinline width="100%"></video>
+1. Open PocketRig and sign in to Steam. Scanning the QR code with the official Steam app on another device is
+   the safest way; username, password and Steam Guard work too.
+2. Your library loads. Tap a game, then **Install** to download it to the phone.
+3. Tap **Play**. The first launch also downloads the Windows runtime, once.
 
-</div>
+Epic, GOG and Amazon libraries can be connected too.
 
----
+What runs well depends on the phone's chip. Snapdragon phones get the best results because of the open-source
+Turnip driver; lighter 2D and older 3D games are the safest bets. GameNative's community compatibility list is
+at https://gamenative.app/compatibility.
 
-GameNative lets you run the PC games in your Steam, Epic and GOG libraries directly on Android — no streaming required. Your saves sync to the cloud, so you can stop on your PC and keep going on your phone.
+## What's different from GameNative
 
-It's still early. Not every game runs yet, and some need tweaking to play well, but the community is constantly finding and sharing configs that work — and these get applied automatically. You can see if anyone has tried running your game successfully at https://gamenative.app/compatibility.
+Changed in November 2026:
 
-## What you get
+- Name **PocketRig** and its own icon (a handheld with a download arrow), drawn by `tools/make_icons.py`.
+- The launcher icon follows the app's theme: System Default follows the phone's light/dark mode, Light keeps the
+  light icon, Dark and AMOLED use the dark icon. The old icon picker in Settings is gone.
+- Updates come from this repo's GitHub Releases instead of GameNative's update server.
+- One build (the "legacy" flavor GameNative recommends for most phones), signed with the key in `signing/`
+  so each update installs over the last one.
+- No analytics keys are built in.
+- GameNative's paid extras (Optimize, AI help) and its account features still point at GameNative's servers.
 
-- Play games you actually own on Steam, Epic, GOG and Amazon
-- Cloud saves that carry over between your PC and your phone
-- Automatically applied known configs, so many games just work out of the box with no tweaking required
-- Controller and touch support, with a custom control editor and on-screen HUD
-- Steam DLC, workshop and branch support
-- Active support over Discord if you need help getting a game running
-- Optimize: games tuned to your device (members)
-- AI help that finds and fixes what's stopping a game from running (members)
+The app keeps GameNative's Android package name (`app.gamenative`) because the downloaded Windows runtime
+expects that path. That means PocketRig and the official GameNative app can't both be installed: uninstall one
+before installing the other.
 
-## Demo
+## Building locally
 
-[TechDweeb](https://www.youtube.com/@TechDweeb) walks through setting up GameNative on an Android handheld in a couple of minutes:
+Android Studio with JDK 17, then `./gradlew :app:bundleLegacyRelease`. See the workflow file for how the
+universal APK is made from the bundle.
 
-<div align="center">
+## Credits
 
-<a href="https://youtu.be/QqIChmAu2_A?si=Ha6xzTQXZA2H8HUN&t=53" target="_blank"><img src="https://github.com/user-attachments/assets/6957e3a1-34ac-41f5-b558-0f1868dbf3d4" alt="Youtube Video" /></a>
-
-</div>
-
-## How to use
-
-1. Download the latest release [here](https://downloads.gamenative.app/releases/1.4.0/gamenative-v1.4.0.apk)
-2. Install the APK on your Android device
-3. Log in to your Steam account
-4. Install your game
-5. Hit play and enjoy
-
-## Support
-
-The fastest way to get help is the [Discord server](https://discord.gg/2hKv4VfZfE) — we're 35k+ strong and someone's usually around.
-
-Please **don't** open issues on GitHub; they're closed automatically. Bring it to Discord instead.
-
-[**Become a member**](https://ko-fi.com/gamenative) to get Optimize, AI help and early access builds.
-
-Questions about paid features, or tuning games yourself? See the [FAQ](FAQ.md).
-
-## Contributing
-
-Want to help out? Message us to get into the **#development** channel on [Discord](https://discord.gg/2hKv4VfZfE), or open a thread there. Things we're currently looking for help with live on our [Trello board](https://trello.com/b/vGRkFoAM/open-source-board).
-
-### Fix a game that doesn't work
-
-Every night we publish the list of games that don't run in GameNative, built from real usage data, at [GameNative/gamenative-compat](https://github.com/GameNative/gamenative-compat). Each broken game has [an open issue](https://github.com/GameNative/gamenative-compat/issues?q=is%3Aopen+label%3Adoes-not-work) with the numbers behind it: how many players hit it, what they report, whether the game window ever renders.
-
-If you want to take one on:
-
-1. Pick a game from the list and open its issue. Check the comments to see whether someone is already on it, then leave a comment saying you are taking it.
-2. Work out why it fails. Most fixes land in this repo, in [proton-wine](https://github.com/GameNative/proton-wine), in [FEX](https://github.com/GameNative/FEX), in the GPU driver wrappers or in the per-game config.
-3. Open a pull request in the right repo, then comment on the game's issue with a link to it. Once the fix ships and players start getting the game to run, the issue closes itself.
-
-Own a broken game and want to donate a key so someone can fix it? Email [support@gamenative.app](mailto:support@gamenative.app).
-
-### Building
-
-Most of the time you don't need this — if you just want to play, grab the release above. This is for contributors.
-
-1. Build it like any normal Android Studio project. Ask on Discord if you get stuck.
-2. **SteamGridDB API key (optional):** to pull game artwork for custom games, add your key to `local.properties`:
-   ```properties
-   STEAMGRIDDB_API_KEY=your_api_key_here
-   ```
-   You can get one from your [SteamGridDB preferences](https://www.steamgriddb.com/profile/preferences). Without it everything still works — it just won't fetch images.
-
-## Analytics & privacy
-
-GameNative uses [PostHog](https://posthog.com) for anonymous analytics. No personal information is ever collected — no names, emails, IPs or device identifiers.
-
-**Always collected**, to improve game compatibility:
-- Game launch, close and exit events (game name, store, session length, average FPS, container config)
-- Game install, cancel and uninstall events
-
-This is how we figure out which games work, how well they run, and which configs to apply automatically for the next person. It can't identify you.
-
-**Optional**, and switchable under *Settings → Info → Usage Analytics*:
-- Feature usage (on-screen keyboard, controller, HUD, control editor)
-- Login success/failure events
-- Recommendation interactions
-- App lifecycle events (foreground/background)
-- Cloud sync events
-
-The full [Privacy Policy](PrivacyPolicy/README.md) has the details.
-
-## Sponsors
-
-GameNative is sponsored by [CodeRabbit](https://coderabbit.link/gnative).
-
-[![Star History Chart](https://star-history.dera.page/svg?repos=utkarshdalal/GameNative&type=Date&theme=dark)](https://star-history.dera.page/#utkarshdalal/GameNative&Date)
-
-## License
-
-[GPL 3.0](https://github.com/utkarshdalal/GameNative/blob/master/LICENSE).
-
-See [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES) for attributions, copyleft source offers, and notices about third-party and proprietary components bundled with the app.
-
----
-
-**Disclaimer:** This software is meant for playing games that you legally own. Don't use it for piracy or anything else illegal. The maintainer takes no responsibility for misuse.
+All the engine work is GameNative's and the projects it builds on (Pluvia, Winlator, Wine, DXVK, FEX, Box64,
+Mesa Turnip and more). If PocketRig is useful to you, consider supporting GameNative: https://ko-fi.com/gamenative
